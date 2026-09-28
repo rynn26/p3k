@@ -26,7 +26,8 @@ export interface HealthRecordData {
   bmi_category?: string;
   exercise_frequency: string;
   smoking_habit: string;
-  comorbidities: string[];
+  comorbidities?: string[];
+  comorbidity?: string;
 }
 
 export interface RebaAssessmentRecord {

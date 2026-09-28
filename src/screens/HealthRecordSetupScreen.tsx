@@ -78,8 +78,18 @@ export const HealthRecordSetupScreen: React.FC<HealthRecordSetupScreenProps> = (
         if (data.height_cm) setHeight(String(data.height_cm));
         if (data.exercise_frequency) setExercise(data.exercise_frequency);
         if (data.smoking_habit) setSmoking(data.smoking_habit);
-        if (data.comorbidities && Array.isArray(data.comorbidities)) {
-          setComorbidities(data.comorbidities);
+        
+        const comorbVal = data.comorbidity || data.comorbidities;
+        if (comorbVal) {
+          if (Array.isArray(comorbVal)) {
+            setComorbidities(comorbVal.length > 0 ? comorbVal : ['Tidak ada']);
+          } else if (typeof comorbVal === 'string') {
+            const parsed = comorbVal
+              .split(',')
+              .map((c: string) => c.trim())
+              .filter(Boolean);
+            setComorbidities(parsed.length > 0 ? parsed : ['Tidak ada']);
+          }
         }
       } else {
         // Fallback to local storage if any
@@ -87,6 +97,17 @@ export const HealthRecordSetupScreen: React.FC<HealthRecordSetupScreenProps> = (
         if (savedW) setWeight(savedW);
         const savedH = localStorage.getItem(`hr_height_${userId}`);
         if (savedH) setHeight(savedH);
+        const savedEx = localStorage.getItem(`hr_exercise_${userId}`);
+        if (savedEx) setExercise(savedEx);
+        const savedSm = localStorage.getItem(`hr_smoking_${userId}`);
+        if (savedSm) setSmoking(savedSm);
+        const savedCom = localStorage.getItem(`hr_comorbidities_${userId}`);
+        if (savedCom) {
+          try {
+            const parsed = JSON.parse(savedCom);
+            if (Array.isArray(parsed) && parsed.length > 0) setComorbidities(parsed);
+          } catch (_) {}
+        }
       }
     } catch (err) {
       console.error('Error fetching health record:', err);
@@ -152,16 +173,31 @@ export const HealthRecordSetupScreen: React.FC<HealthRecordSetupScreenProps> = (
     setMessage(null);
 
     try {
-      const payload = {
+      const comorbidityStr = comorbidities.join(', ');
+      const hMeter = hNum / 100;
+      const calculatedBmi = bmi ?? (hMeter > 0 ? parseFloat((wNum / (hMeter * hMeter)).toFixed(1)) : 0);
+
+      const payload: Record<string, any> = {
         user_id: userId,
         weight_kg: wNum,
         height_cm: hNum,
+        bmi: calculatedBmi,
         exercise_frequency: exercise,
         smoking_habit: smoking,
-        comorbidities: comorbidities,
+        comorbidity: comorbidityStr,
+        updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('health_records').upsert(payload);
+      let { error } = await supabase.from('health_records').upsert(payload, { onConflict: 'user_id' });
+
+      // Fallback in case bmi or updated_at column isn't in table schema
+      if (error && (error.message?.includes('bmi') || error.message?.includes('updated_at'))) {
+        delete payload.bmi;
+        delete payload.updated_at;
+        const retryRes = await supabase.from('health_records').upsert(payload, { onConflict: 'user_id' });
+        error = retryRes.error;
+      }
+
       if (error) throw error;
 
       localStorage.setItem(`hr_weight_${userId}`, String(wNum));
