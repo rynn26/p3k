@@ -7,6 +7,10 @@ export interface UserProfile {
   company_name?: string;
   department_name?: string;
   job_role?: string;
+  gender?: string;
+  birth_date?: string;
+  education?: string;
+  join_date?: string;
   created_at?: string;
 }
 

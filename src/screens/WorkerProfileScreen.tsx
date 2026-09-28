@@ -25,10 +25,10 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const gender = localStorage.getItem(`worker_gender_${userId}`) || 'Laki-laki';
-  const birthDate = localStorage.getItem(`worker_birth_${userId}`) || '-';
-  const education = localStorage.getItem(`worker_edu_${userId}`) || 'Sarjana (S1)';
-  const joinDate = localStorage.getItem(`worker_join_${userId}`) || '-';
+  const gender = profile?.gender || localStorage.getItem(`worker_gender_${userId}`) || 'Laki-laki';
+  const birthDate = profile?.birth_date || localStorage.getItem(`worker_birth_${userId}`) || '-';
+  const education = profile?.education || localStorage.getItem(`worker_edu_${userId}`) || 'Sarjana (S1)';
+  const joinDate = profile?.join_date || localStorage.getItem(`worker_join_${userId}`) || '-';
 
   return (
     <div

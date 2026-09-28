@@ -52,17 +52,21 @@ export const WorkerProfileSetupScreen: React.FC<WorkerProfileSetupScreenProps> =
         if (profile.full_name) setFullName(profile.full_name);
         if (profile.company_name) setSelectedCompany(profile.company_name);
         if (profile.department_name) setSelectedDepartment(profile.department_name);
+        if (profile.gender) setGender(profile.gender);
+        if (profile.birth_date) setBirthDate(profile.birth_date);
+        if (profile.education) setEducation(profile.education);
+        if (profile.join_date) setJoinDate(profile.join_date);
       }
 
-      // Check local storage for extra worker fields if present
+      // Check local storage for extra worker fields if present and not already set from profile
       const savedGender = localStorage.getItem(`worker_gender_${userId}`);
-      if (savedGender) setGender(savedGender);
+      if (savedGender && (!profile || !profile.gender)) setGender(savedGender);
       const savedBirth = localStorage.getItem(`worker_birth_${userId}`);
-      if (savedBirth) setBirthDate(savedBirth);
+      if (savedBirth && (!profile || !profile.birth_date)) setBirthDate(savedBirth);
       const savedEdu = localStorage.getItem(`worker_edu_${userId}`);
-      if (savedEdu) setEducation(savedEdu);
+      if (savedEdu && (!profile || !profile.education)) setEducation(savedEdu);
       const savedJoin = localStorage.getItem(`worker_join_${userId}`);
-      if (savedJoin) setJoinDate(savedJoin);
+      if (savedJoin && (!profile || !profile.join_date)) setJoinDate(savedJoin);
 
       // 2. Fetch companies from Supabase
       const { data: compData } = await supabase
@@ -143,14 +147,28 @@ export const WorkerProfileSetupScreen: React.FC<WorkerProfileSetupScreenProps> =
 
     try {
       // 1. Update profiles table in Supabase
-      const { error } = await supabase
+      const updateData: Record<string, any> = {
+        full_name: fullName.trim(),
+        company_name: selectedCompany,
+        department_name: selectedDepartment,
+        gender: gender,
+        birth_date: birthDate,
+        education: education,
+        join_date: joinDate,
+      };
+
+      let { error } = await supabase
         .from('profiles')
-        .update({
-          full_name: fullName.trim(),
-          company_name: selectedCompany,
-          department_name: selectedDepartment,
-        })
+        .update(updateData)
         .eq('id', userId);
+
+      // Fallback if older table schema lacks education or join_date columns
+      if (error && (error.message?.includes('education') || error.message?.includes('join_date'))) {
+        delete updateData.education;
+        delete updateData.join_date;
+        const retryRes = await supabase.from('profiles').update(updateData).eq('id', userId);
+        error = retryRes.error;
+      }
 
       if (error) throw error;
 
