@@ -14,6 +14,7 @@ import { NbmAssessmentScreen } from './screens/NbmAssessmentScreen';
 import { AssessmentHistoryScreen } from './screens/AssessmentHistoryScreen';
 import { AssessmentReportsScreen } from './screens/AssessmentReportsScreen';
 import { WorkerProfileScreen } from './screens/WorkerProfileScreen';
+import { AdminManagementScreen } from './screens/AdminManagementScreen';
 import { ShieldAlert } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -23,7 +24,14 @@ export const App: React.FC = () => {
   >('CHECKING');
 
   const [currentView, setCurrentView] = useState<
-    'MAIN' | 'REGISTER' | 'ERGONOMICS_HUB' | 'REBA_WIZARD' | 'NBM_SURVEY' | 'EDIT_PROFILE' | 'EDIT_HEALTH'
+    | 'MAIN'
+    | 'REGISTER'
+    | 'ERGONOMICS_HUB'
+    | 'REBA_WIZARD'
+    | 'NBM_SURVEY'
+    | 'EDIT_PROFILE'
+    | 'EDIT_HEALTH'
+    | 'ADMIN_MANAGEMENT'
   >('MAIN');
 
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -70,14 +78,39 @@ export const App: React.FC = () => {
 
       setProfile(profData || null);
 
-      // Check onboarding Stage 2: Profile complete
+      // SAMA PERSIS DENGAN FLUTTER: Cek Admin terlebih dahulu!
+      // Jika role == 'admin', langsung masuk ke AdminManagementScreen tanpa perlu mengisi Onboarding Profil Pekerja & Catatan Kesehatan
+      if (profData?.role === 'admin') {
+        setCurrentView('ADMIN_MANAGEMENT');
+        setAuthStatus('AUTHENTICATED');
+
+        // Load riwayat asesmen (jika ada) di latar belakang
+        const { data: rebaData } = await supabase
+          .from('reba_assessments')
+          .select('*')
+          .eq('user_id', uid)
+          .order('assessed_at', { ascending: false });
+        if (rebaData) setRebaRecords(rebaData);
+
+        const { data: nbmData } = await supabase
+          .from('nbm_assessments')
+          .select('*')
+          .eq('user_id', uid)
+          .order('assessed_at', { ascending: false });
+        if (nbmData) setNbmRecords(nbmData);
+
+        return;
+      }
+
+      // Khusus Pekerja (Non-Admin): Verifikasi alur wajib onboarding
+      // Tahap 2: Profil Pekerja
       const isProfileComplete = !!(profData && profData.full_name && profData.company_name);
       if (!isProfileComplete) {
         setAuthStatus('ONBOARDING_PROFILE');
         return;
       }
 
-      // Check onboarding Stage 3: Health record complete
+      // Tahap 3: Catatan Kesehatan
       const { data: healthData } = await supabase
         .from('health_records')
         .select('weight_kg, height_cm')
@@ -192,7 +225,14 @@ export const App: React.FC = () => {
         {currentView === 'REGISTER' ? (
           <RegisterScreen
             onBackToLogin={() => setCurrentView('MAIN')}
+            onRegisterSuccess={(uid) => {
+              setUserId(uid);
+              loadUserDataAndAssessments(uid);
+              setAuthStatus('ONBOARDING_PROFILE');
+              setCurrentView('MAIN');
+            }}
             lang={lang}
+            onToggleLang={toggleLanguage}
           />
         ) : (
           <LoginScreen
@@ -216,7 +256,11 @@ export const App: React.FC = () => {
         <WorkerProfileSetupScreen
           userId={userId}
           isInitialSetup={true}
-          onComplete={() => setAuthStatus('ONBOARDING_HEALTH')}
+          onComplete={() => {
+            loadUserDataAndAssessments(userId);
+            setAuthStatus('ONBOARDING_HEALTH');
+          }}
+          onLogout={handleLogout}
           lang={lang}
         />
       </div>
@@ -256,6 +300,7 @@ export const App: React.FC = () => {
       {currentView === 'REBA_WIZARD' && userId && (
         <RebaAssessmentScreen
           userId={userId}
+          isAdmin={profile?.role === 'admin'}
           onBack={() => setCurrentView('ERGONOMICS_HUB')}
           onSaved={() => {
             handleRefreshRecords();
@@ -288,6 +333,7 @@ export const App: React.FC = () => {
             setCurrentView('MAIN');
           }}
           onBack={() => setCurrentView('MAIN')}
+          onOpenAdmin={() => setCurrentView('ADMIN_MANAGEMENT')}
           lang={lang}
         />
       )}
@@ -302,6 +348,14 @@ export const App: React.FC = () => {
         />
       )}
 
+      {currentView === 'ADMIN_MANAGEMENT' && (
+        <AdminManagementScreen
+          onBackToHome={() => setCurrentView('MAIN')}
+          onLogout={handleLogout}
+          lang={lang}
+        />
+      )}
+
       {/* Main Tabs View (Sama persis dengan IndexedStack di Flutter MainNavigationScreen) */}
       {currentView === 'MAIN' && (
         <>
@@ -312,6 +366,7 @@ export const App: React.FC = () => {
               onOpenErgonomics={() => setCurrentView('ERGONOMICS_HUB')}
               onOpenHistory={() => setActiveTab(1)}
               onNavigateToProfile={() => setActiveTab(3)}
+              onOpenAdmin={() => setCurrentView('ADMIN_MANAGEMENT')}
               onLogout={handleLogout}
               rebaRecords={rebaRecords}
               nbmRecords={nbmRecords}
@@ -325,6 +380,9 @@ export const App: React.FC = () => {
               rebaRecords={rebaRecords}
               nbmRecords={nbmRecords}
               onStartNew={() => setCurrentView('ERGONOMICS_HUB')}
+              onStartReba={() => setCurrentView('REBA_WIZARD')}
+              onStartNbm={() => setCurrentView('NBM_SURVEY')}
+              onRefresh={handleRefreshRecords}
               lang={lang}
             />
           )}
@@ -333,6 +391,7 @@ export const App: React.FC = () => {
             <AssessmentReportsScreen
               rebaRecords={rebaRecords}
               nbmRecords={nbmRecords}
+              onRefresh={handleRefreshRecords}
               lang={lang}
             />
           )}
@@ -343,6 +402,7 @@ export const App: React.FC = () => {
               profile={profile}
               onEditProfile={() => setCurrentView('EDIT_PROFILE')}
               onOpenHealthRecord={() => setCurrentView('EDIT_HEALTH')}
+              onOpenAdmin={() => setCurrentView('ADMIN_MANAGEMENT')}
               onLogout={handleLogout}
               lang={lang}
               onToggleLang={toggleLanguage}

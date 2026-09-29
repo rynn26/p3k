@@ -68,14 +68,24 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange, la
             <span
               style={{
                 fontSize: 10.5,
-                fontWeight: isActive ? 700 : 500,
-                color: color,
+                fontWeight: isActive ? 800 : 500,
+                color: isActive ? '#0284C7' : '#64748B',
                 marginTop: 3,
                 letterSpacing: '0.1px',
               }}
             >
               {tab.label}
             </span>
+            <div
+              style={{
+                marginTop: 2,
+                width: isActive ? 20 : 0,
+                height: 3,
+                backgroundColor: isActive ? '#0284C7' : 'transparent',
+                borderRadius: 2,
+                transition: 'width 0.2s ease',
+              }}
+            />
           </button>
         );
       })}

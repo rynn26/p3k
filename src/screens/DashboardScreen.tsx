@@ -2,16 +2,19 @@ import React, { useState } from 'react';
 import {
   Menu,
   Bell,
-  Globe,
   LayoutGrid,
-  Atom,
-  FlaskConical,
-  Leaf,
   Accessibility,
-  Brain,
-  ShieldCheck,
   Lock,
+  ShieldAlert,
 } from 'lucide-react';
+import {
+  PhysicsAtomIcon,
+  ChemistryFlaskIcon,
+  BiologyLeafIcon,
+  ErgonomicsSittingIcon,
+  StressHeadIcon,
+  Smk3ShieldIcon,
+} from '../components/K3CategoryIcons';
 import { UserProfile, RebaAssessmentRecord, NbmAssessmentRecord } from '../types';
 
 interface DashboardScreenProps {
@@ -19,6 +22,7 @@ interface DashboardScreenProps {
   onOpenErgonomics: () => void;
   onOpenHistory: () => void;
   onNavigateToProfile?: () => void;
+  onOpenAdmin?: () => void;
   onLogout?: () => void;
   rebaRecords: RebaAssessmentRecord[];
   nbmRecords: NbmAssessmentRecord[];
@@ -27,9 +31,11 @@ interface DashboardScreenProps {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({
+  profile,
   onOpenErgonomics,
   onOpenHistory,
   onNavigateToProfile,
+  onOpenAdmin,
   onLogout,
   lang,
   onToggleLang,
@@ -53,42 +59,42 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
     {
       id: 'physics',
       title: isEng ? 'Physics' : 'Fisika',
-      icon: Atom,
+      icon: PhysicsAtomIcon,
       circleColor: '#1D68F2',
       isActive: false,
     },
     {
       id: 'chemical',
       title: isEng ? 'Chemical' : 'Kimia',
-      icon: FlaskConical,
+      icon: ChemistryFlaskIcon,
       circleColor: '#7C3AED',
       isActive: false,
     },
     {
       id: 'biological',
       title: isEng ? 'Biological' : 'Biologi',
-      icon: Leaf,
+      icon: BiologyLeafIcon,
       circleColor: '#22C55E',
       isActive: false,
     },
     {
       id: 'ergonomics',
       title: isEng ? 'Ergonomics' : 'Ergonomi',
-      icon: Accessibility,
+      icon: ErgonomicsSittingIcon,
       circleColor: '#F59E0B',
       isActive: true,
     },
     {
       id: 'stress',
       title: isEng ? 'Stress' : 'Stres',
-      icon: Brain,
+      icon: StressHeadIcon,
       circleColor: '#EF4444',
       isActive: false,
     },
     {
       id: 'smk3',
       title: isEng ? 'SMK3' : 'SMK3',
-      icon: ShieldCheck,
+      icon: Smk3ShieldIcon,
       circleColor: '#0284C7',
       isActive: false,
     },
@@ -201,29 +207,73 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
 
           {/* Right Actions: Switch Bahasa + Notification Bell */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {/* Language Switch Button */}
-            <button
+            {/* Language Switch Button (Segmented IDN | ENG) */}
+            <div
               onClick={onToggleLang}
-              type="button"
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 4,
-                backgroundColor: '#FFFFFF',
-                border: '1px solid rgba(15, 23, 42, 0.08)',
-                borderRadius: 18,
-                padding: '5px 10px',
-                fontSize: 11.5,
-                fontWeight: 700,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                borderRadius: 20,
+                padding: '3px 4px',
                 cursor: 'pointer',
-                color: '#0F172A',
-                fontFamily: 'inherit',
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.04)',
+                userSelect: 'none',
               }}
             >
-              <Globe size={13} color="#0D5BD7" />
-              <span>{lang}</span>
-            </button>
+              <span
+                style={{
+                  padding: '3px 7px',
+                  borderRadius: 14,
+                  fontSize: 10.5,
+                  fontWeight: 800,
+                  backgroundColor: lang === 'ID' ? '#FFFFFF' : 'transparent',
+                  color: lang === 'ID' ? '#0F172A' : '#94A3B8',
+                  boxShadow: lang === 'ID' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                IDN
+              </span>
+              <span
+                style={{
+                  padding: '3px 7px',
+                  borderRadius: 14,
+                  fontSize: 10.5,
+                  fontWeight: 800,
+                  backgroundColor: lang === 'ENG' ? '#FFFFFF' : 'transparent',
+                  color: lang === 'ENG' ? '#0F172A' : '#94A3B8',
+                  boxShadow: lang === 'ENG' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                ENG
+              </span>
+            </div>
+
+            {/* Admin Panel Button (Matches Flutter) */}
+            {profile?.role === 'admin' && onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                type="button"
+                title={isEng ? 'OHS Admin Panel' : 'Panel Administrator K3'}
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '50%',
+                  backgroundColor: '#0F172A',
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#38BDF8',
+                }}
+              >
+                <ShieldAlert size={19} />
+              </button>
+            )}
 
             {/* Notification Bell */}
             <button
@@ -481,6 +531,47 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
                 </div>
               </button>
 
+              {profile?.role === 'admin' && onOpenAdmin && (
+                <button
+                  onClick={() => {
+                    setShowNavSheet(false);
+                    onOpenAdmin();
+                  }}
+                  type="button"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '12px 10px',
+                    borderRadius: 12,
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: 8,
+                      borderRadius: 10,
+                      backgroundColor: '#0F172A',
+                      color: '#38BDF8',
+                    }}
+                  >
+                    <ShieldAlert size={20} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>
+                      {isEng ? 'OHS Admin Panel' : 'Panel Administrator K3'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#64748B' }}>
+                      {isEng ? 'Manage companies, units & master settings' : 'Kelola instansi, unit kerja & master'}
+                    </div>
+                  </div>
+                </button>
+              )}
+
               <button
                 onClick={() => {
                   setShowNavSheet(false);
@@ -523,6 +614,34 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({
           </div>
         </div>
       )}
+
+      {/* Ambient Soft Sky Blue Glows at Bottom Corners */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: -50,
+          left: -40,
+          width: 190,
+          height: 190,
+          borderRadius: '50%',
+          backgroundColor: 'rgba(186, 230, 253, 0.45)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: 'fixed',
+          bottom: -60,
+          right: -50,
+          width: 200,
+          height: 200,
+          borderRadius: '50%',
+          backgroundColor: 'rgba(147, 197, 253, 0.35)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
     </div>
   );
 };

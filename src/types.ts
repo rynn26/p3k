@@ -71,11 +71,34 @@ export interface CompanyItem {
   id: string;
   name: string;
   industry?: string;
+  address?: string;
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  is_active?: boolean;
+  created_at?: string;
 }
 
 export interface DepartmentItem {
   id: string;
   name: string;
-  company_id: string;
+  company_id?: string;
   company_name?: string;
+  k3_officer?: string;
+  worker_count?: number;
+  created_at?: string;
 }
+
+export interface AdminWorkerItem {
+  id: string;
+  name: string;
+  gender: string;
+  birth_date?: string;
+  education?: string;
+  join_date?: string;
+  company_name: string;
+  department_name: string;
+  role: string;
+  is_verified?: boolean;
+}
+

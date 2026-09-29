@@ -1,5 +1,19 @@
-import React, { useState } from 'react';
-import { User, HeartPulse, Building2, Briefcase, GraduationCap, Calendar, LogOut, Globe, ChevronRight, ShieldCheck, Mail } from 'lucide-react';
+import React from 'react';
+import {
+  IdCard,
+  Pencil,
+  Activity,
+  ChevronRight,
+  User,
+  Users,
+  Cake,
+  GraduationCap,
+  Calendar,
+  Building2,
+  Briefcase,
+  CheckCircle2,
+  ShieldAlert,
+} from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface WorkerProfileScreenProps {
@@ -7,9 +21,10 @@ interface WorkerProfileScreenProps {
   profile: UserProfile | null;
   onEditProfile: () => void;
   onOpenHealthRecord: () => void;
+  onOpenAdmin?: () => void;
   onLogout: () => void;
   lang: 'ID' | 'ENG';
-  onToggleLang: () => void;
+  onToggleLang?: () => void;
 }
 
 export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
@@ -17,344 +32,609 @@ export const WorkerProfileScreen: React.FC<WorkerProfileScreenProps> = ({
   profile,
   onEditProfile,
   onOpenHealthRecord,
+  onOpenAdmin,
   onLogout,
   lang,
-  onToggleLang,
 }) => {
   const isEng = lang === 'ENG';
 
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const fullName = profile?.full_name || (isEng ? 'Worker' : 'Pekerja K3');
+  const companyName = profile?.company_name || '-';
+  const departmentName = profile?.department_name || '-';
+  const gender = profile?.gender || '-';
+  const birthDate = profile?.birth_date || '-';
+  const education = profile?.education || '-';
+  const joinDate = profile?.join_date || '-';
 
-  const gender = profile?.gender || localStorage.getItem(`worker_gender_${userId}`) || 'Laki-laki';
-  const birthDate = profile?.birth_date || localStorage.getItem(`worker_birth_${userId}`) || '-';
-  const education = profile?.education || localStorage.getItem(`worker_edu_${userId}`) || 'Sarjana (S1)';
-  const joinDate = profile?.join_date || localStorage.getItem(`worker_join_${userId}`) || '-';
+  // ID generator matching Flutter hash
+  const workerId = `K3-${(Math.abs(fullName.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0)) % 9000 + 1000)}`;
+
+  const formatDateDisplay = (val: string) => {
+    if (!val || val === '-') return '-';
+    if (val.includes('/')) return val;
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return val;
+      const day = d.getDate().toString().padStart(2, '0');
+      const month = (d.getMonth() + 1).toString().padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return val;
+    }
+  };
 
   return (
     <div
       className="fade-in"
       style={{
-        padding: '20px 18px 90px 18px',
-        backgroundColor: '#F8FAFC',
+        width: '100%',
+        backgroundColor: '#FFFFFF',
         minHeight: '100vh',
+        paddingBottom: 90,
+        boxSizing: 'border-box',
+        position: 'relative',
       }}
     >
-      {/* Title */}
-      <div style={{ marginBottom: 18 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.4px' }}>
-          {isEng ? 'Worker Profile' : 'Profil Pekerja'}
-        </h2>
-        <p style={{ fontSize: 13, color: '#64748B', marginTop: 2 }}>
-          {isEng ? 'Manage personal identity and health metrics' : 'Kelola identitas personal & rekam kesehatan kerja'}
-        </p>
-      </div>
-
-      {/* Profile Identity Card */}
+      {/* 1. TOP HERO WAVE BANNER (WONDR STYLE) */}
       <div
-        className="card"
         style={{
-          padding: 20,
-          borderRadius: 20,
-          backgroundColor: '#FFFFFF',
-          border: '1.5px solid #E2E8F0',
-          marginBottom: 16,
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.04)',
+          width: '100%',
+          background: 'linear-gradient(to bottom right, #E0F2FE, #BAE6FD)',
+          padding: '24px 20px 32px 20px',
+          borderBottomLeftRadius: 28,
+          borderBottomRightRadius: 28,
+          boxSizing: 'border-box',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div
-            style={{
-              width: 58,
-              height: 58,
-              borderRadius: 18,
-              backgroundColor: '#EFF6FF',
-              color: '#0D5BD7',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 22,
-              fontWeight: 800,
-              boxShadow: '0 4px 12px rgba(13, 91, 215, 0.15)',
-            }}
-          >
-            {profile?.full_name ? profile.full_name.charAt(0).toUpperCase() : 'P'}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                color: '#0F172A',
+              }}
+            >
+              <IdCard size={22} />
+            </div>
+            <div>
+              <h1
+                style={{
+                  fontSize: 18,
+                  fontWeight: 900,
+                  color: '#0F172A',
+                  margin: 0,
+                  lineHeight: 1.2,
+                }}
+              >
+                {isEng ? 'Worker Data' : 'Data Pekerja'}
+              </h1>
+              <p
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: '#475569',
+                  margin: '3px 0 0 0',
+                }}
+              >
+                {isEng ? 'Identity & OHS Status' : 'Identitas & Status K3'}
+              </p>
+            </div>
           </div>
 
-          <div style={{ flex: 1 }}>
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', letterSpacing: '-0.2px' }}>
-              {profile?.full_name || 'Pekerja K3'}
-            </h3>
-            <div style={{ fontSize: 12, color: '#64748B', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Mail size={13} />
-              <span>{profile?.email || 'worker@company.com'}</span>
-            </div>
-            <div style={{ marginTop: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {profile?.role === 'admin' && onOpenAdmin && (
+              <button
+                onClick={onOpenAdmin}
+                type="button"
+                title={isEng ? 'OHS Admin Panel' : 'Panel Administrator'}
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '50%',
+                  backgroundColor: '#0F172A',
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: '#38BDF8',
+                }}
+              >
+                <ShieldAlert size={18} />
+              </button>
+            )}
+
+            <button
+              onClick={onEditProfile}
+              type="button"
+              title={isEng ? 'Edit Profile' : 'Edit Profil'}
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: '50%',
+                backgroundColor: '#FFFFFF',
+                border: 'none',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#0F172A',
+              }}
+            >
+              <Pencil size={18} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
+        {/* 2. KARTU IDENTITAS K3 */}
+        <div
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 22,
+            border: '1px solid #E2E8F0',
+            padding: 20,
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
+          }}
+        >
+          {/* Top Meta Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: '#10B981',
+                }}
+              />
               <span
                 style={{
                   fontSize: 11,
                   fontWeight: 800,
+                  letterSpacing: 0.8,
                   color: '#0284C7',
-                  backgroundColor: '#E0F2FE',
-                  padding: '3px 8px',
-                  borderRadius: 10,
                 }}
               >
-                Pekerja Aktif K3L
+                KARTU IDENTITAS K3
               </span>
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Quick Action Buttons */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-        <button
-          onClick={onEditProfile}
-          type="button"
-          className="card"
-          style={{
-            padding: 14,
-            borderRadius: 16,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            cursor: 'pointer',
-            textAlign: 'left',
-            border: '1.5px solid #E2E8F0',
-            fontFamily: 'inherit',
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              backgroundColor: '#EBF3FE',
-              color: '#0D5BD7',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <User size={18} />
-          </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
-              {isEng ? 'Edit Profile' : 'Edit Profil'}
-            </div>
-            <span style={{ fontSize: 11, color: '#64748B' }}>Identitas pekerja</span>
-          </div>
-        </button>
-
-        <button
-          onClick={onOpenHealthRecord}
-          type="button"
-          className="card"
-          style={{
-            padding: 14,
-            borderRadius: 16,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            cursor: 'pointer',
-            textAlign: 'left',
-            border: '1.5px solid #E2E8F0',
-            fontFamily: 'inherit',
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              backgroundColor: '#F0FDF4',
-              color: '#10B981',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <HeartPulse size={18} />
-          </div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
-              {isEng ? 'Health Record' : 'Catatan Sehat'}
-            </div>
-            <span style={{ fontSize: 11, color: '#64748B' }}>Fisik &amp; BMI</span>
-          </div>
-        </button>
-      </div>
-
-      {/* Details List */}
-      <div className="card" style={{ padding: 18, borderRadius: 18, marginBottom: 20 }}>
-        <h4 style={{ fontSize: 14, fontWeight: 800, color: '#0F172A', marginBottom: 14 }}>
-          {isEng ? 'Personal & Employment Details' : 'Rincian Data Pekerja'}
-        </h4>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748B' }}>Jenis Kelamin</span>
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>{gender}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748B' }}>Tanggal Lahir</span>
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>{birthDate}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748B' }}>Pendidikan Terakhir</span>
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>{education}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748B' }}>Instansi / Perusahaan</span>
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>{profile?.company_name || 'Pertamina A'}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748B' }}>Departemen</span>
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>{profile?.department_name || 'Operasional'}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: '#64748B' }}>Mulai Bekerja</span>
-            <span style={{ fontWeight: 700, color: '#0F172A' }}>{joinDate}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Settings & Logout */}
-      <div className="card" style={{ padding: 14, borderRadius: 18, marginBottom: 24 }}>
-        <button
-          onClick={onToggleLang}
-          type="button"
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 4px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Globe size={18} color="#0D5BD7" />
-            <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0F172A' }}>
-              {isEng ? 'Language / Bahasa' : 'Bahasa Aplikasi'}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#0D5BD7' }}>{lang}</span>
-            <ChevronRight size={16} color="#94A3B8" />
-          </div>
-        </button>
-
-        <div style={{ height: 1, backgroundColor: '#E2E8F0', margin: '6px 0' }} />
-
-        <button
-          onClick={() => setShowLogoutConfirm(true)}
-          type="button"
-          style={{
-            width: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 4px',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <LogOut size={18} color="#DC2626" />
-            <span style={{ fontSize: 13.5, fontWeight: 700, color: '#DC2626' }}>
-              {isEng ? 'Sign Out of Account' : 'Keluar dari Akun'}
-            </span>
-          </div>
-          <ChevronRight size={16} color="#DC2626" />
-        </button>
-      </div>
-
-      {/* App Version Info */}
-      <div style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', fontWeight: 600 }}>
-        HERU Industrial Safety App • v1.0.0
-      </div>
-
-      {/* Logout Confirmation Dialog */}
-      {showLogoutConfirm && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-            zIndex: 100,
-          }}
-        >
-          <div
-            className="fade-in"
-            style={{
-              backgroundColor: '#FFFFFF',
-              borderRadius: 20,
-              padding: 24,
-              maxWidth: 360,
-              width: '100%',
-              textAlign: 'center',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
-            }}
-          >
             <div
               style={{
-                width: 52,
-                height: 52,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '4px 10px',
+                borderRadius: 20,
+                backgroundColor: '#ECFDF5',
+                border: '1px solid #A7F3D0',
+                color: '#059669',
+                fontSize: 10.5,
+                fontWeight: 800,
+              }}
+            >
+              <CheckCircle2 size={13} color="#059669" />
+              <span>Terverifikasi K3</span>
+            </div>
+          </div>
+
+          {/* Main Identity Row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 16 }}>
+            {/* Avatar Circle */}
+            <div
+              style={{
+                width: 58,
+                height: 58,
                 borderRadius: '50%',
-                backgroundColor: '#FEF2F2',
-                color: '#DC2626',
+                background: 'linear-gradient(to bottom right, #BAE6FD, #0284C7)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 14px',
+                fontSize: 24,
+                fontWeight: 900,
+                color: '#0F172A',
+                boxShadow: '0 3px 10px rgba(2, 132, 199, 0.2)',
+                flexShrink: 0,
               }}
             >
-              <LogOut size={26} />
+              {fullName.charAt(0).toUpperCase()}
             </div>
 
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', marginBottom: 6 }}>
-              {isEng ? 'Sign Out Confirmation' : 'Konfirmasi Keluar'}
-            </h3>
-            <p style={{ fontSize: 13, color: '#64748B', lineHeight: 1.4, marginBottom: 20 }}>
-              {isEng
-                ? 'Are you sure you want to sign out of your worker session?'
-                : 'Apakah Anda yakin ingin keluar dari sesi akun pekerja ini?'}
-            </p>
-
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => setShowLogoutConfirm(false)}
-                className="btn-outline"
-                type="button"
-                style={{ flex: 1 }}
-              >
-                {isEng ? 'Cancel' : 'Batal'}
-              </button>
-              <button
-                onClick={() => {
-                  setShowLogoutConfirm(false);
-                  onLogout();
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2
+                style={{
+                  fontSize: 18,
+                  fontWeight: 900,
+                  color: '#0F172A',
+                  margin: 0,
+                  letterSpacing: '-0.2px',
+                  lineHeight: 1.2,
                 }}
-                className="btn-primary"
-                type="button"
-                style={{ flex: 1, backgroundColor: '#DC2626', boxShadow: 'none' }}
               >
-                {isEng ? 'Sign Out' : 'Keluar'}
-              </button>
+                {fullName}
+              </h2>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: '#0284C7',
+                  marginTop: 3,
+                }}
+              >
+                {departmentName}
+              </div>
+              <div
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 500,
+                  color: '#64748B',
+                  marginTop: 2,
+                }}
+              >
+                {companyName}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '16px 0 12px 0' }} />
+
+          {/* Bottom ID info */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span
+              style={{
+                fontSize: 11.5,
+                fontWeight: 700,
+                letterSpacing: 0.5,
+                color: '#64748B',
+              }}
+            >
+              ID: {workerId}
+            </span>
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '3px 9px',
+                borderRadius: 12,
+                backgroundColor: '#ECFDF5',
+                color: '#059669',
+                fontSize: 11,
+                fontWeight: 700,
+              }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: '50%',
+                  backgroundColor: '#10B981',
+                }}
+              />
+              <span>Status: Aktif</span>
             </div>
           </div>
         </div>
-      )}
+
+        {/* 3. CATATAN KESEHATAN PEKERJA (Card 2) */}
+        <div
+          onClick={onOpenHealthRecord}
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 22,
+            border: '1px solid #E2E8F0',
+            padding: 16,
+            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer',
+            transition: 'transform 0.12s ease',
+          }}
+        >
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 14,
+              backgroundColor: '#E0F2FE',
+              color: '#0284C7',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Activity size={24} />
+          </div>
+
+          <div style={{ flex: 1, marginLeft: 14, minWidth: 0 }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#0F172A' }}>
+              {isEng ? 'Worker Health Record' : 'Catatan Kesehatan Pekerja'}
+            </div>
+            <div style={{ fontSize: 11.5, color: '#64748B', fontWeight: 500, marginTop: 3 }}>
+              {isEng
+                ? 'Physical, BMI, workout habits, and health history.'
+                : 'Fisik, IMT, pola olahraga, dan riwayat kesehatan.'}
+            </div>
+          </div>
+
+          <div
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 10,
+              backgroundColor: '#F1F5F9',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0F172A',
+              marginLeft: 8,
+            }}
+          >
+            <ChevronRight size={20} />
+          </div>
+        </div>
+
+        {/* 4. INFORMASI LENGKAP PEKERJA (Card 3) */}
+        <div>
+          <div
+            style={{
+              fontSize: 14.5,
+              fontWeight: 800,
+              color: '#0F172A',
+              marginBottom: 10,
+            }}
+          >
+            {isEng ? 'Full Worker Information' : 'Informasi Lengkap Pekerja'}
+          </div>
+
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 22,
+              border: '1px solid #E2E8F0',
+              boxShadow: '0 4px 16px rgba(15, 23, 42, 0.05)',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Row 1: Nama Lengkap */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#E0F2FE',
+                  color: '#0284C7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <User size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Full Name' : 'Nama Lengkap'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {fullName}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '0 16px' }} />
+
+            {/* Row 2: Jenis Kelamin */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#DBEAFE',
+                  color: '#2563EB',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Users size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Gender' : 'Jenis Kelamin'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {gender}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '0 16px' }} />
+
+            {/* Row 3: Tanggal Lahir */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#EDE9FE',
+                  color: '#7C3AED',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Cake size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Birth Date' : 'Tanggal Lahir'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {formatDateDisplay(birthDate)}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '0 16px' }} />
+
+            {/* Row 4: Pendidikan Terakhir */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#D1FAE5',
+                  color: '#059669',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <GraduationCap size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Last Education' : 'Pendidikan Terakhir'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {education}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '0 16px' }} />
+
+            {/* Row 5: Tanggal Masuk */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#E0F2FE',
+                  color: '#0284C7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Calendar size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Join Date' : 'Tanggal Masuk'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {formatDateDisplay(joinDate)}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '0 16px' }} />
+
+            {/* Row 6: Asal Instansi */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#FEF3C7',
+                  color: '#D97706',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Building2 size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Company / Institution' : 'Asal Instansi'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {companyName}
+                </div>
+              </div>
+            </div>
+            <div style={{ height: 1, backgroundColor: '#F1F5F9', margin: '0 16px' }} />
+
+            {/* Row 7: Departemen / Unit */}
+            <div style={{ display: 'flex', alignItems: 'center', padding: '13px 16px', gap: 14 }}>
+              <div
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 10,
+                  backgroundColor: '#E0F2FE',
+                  color: '#0284C7',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <Briefcase size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#64748B' }}>
+                  {isEng ? 'Department / Unit' : 'Departemen / Unit'}
+                </div>
+                <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A', marginTop: 2 }}>
+                  {departmentName}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Ambient Soft Sky Blue Glows at Bottom Corners */}
+      <div
+        style={{
+          position: 'fixed',
+          bottom: -50,
+          left: -40,
+          width: 190,
+          height: 190,
+          borderRadius: '50%',
+          backgroundColor: 'rgba(186, 230, 253, 0.45)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: 'fixed',
+          bottom: -60,
+          right: -50,
+          width: 200,
+          height: 200,
+          borderRadius: '50%',
+          backgroundColor: 'rgba(147, 197, 253, 0.35)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
     </div>
   );
 };

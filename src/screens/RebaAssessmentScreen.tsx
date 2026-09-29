@@ -12,12 +12,14 @@ import {
   Check,
   RotateCw,
   Compass,
+  Calculator,
 } from 'lucide-react';
 import { REBA_STEPS } from '../utils/rebaData';
 import { RebaScoringEngine } from '../utils/rebaScoring';
 
 interface RebaAssessmentScreenProps {
   userId: string;
+  isAdmin?: boolean;
   onBack: () => void;
   onSaved: () => void;
   lang: 'ID' | 'ENG';
@@ -25,6 +27,7 @@ interface RebaAssessmentScreenProps {
 
 export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
   userId,
+  isAdmin = false,
   onBack,
   onSaved,
   lang,
@@ -38,6 +41,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [currentLayer, setCurrentLayer] = useState<1 | 2>(1);
   const [isResultView, setIsResultView] = useState(false);
+  const [showAdminDetails, setShowAdminDetails] = useState<boolean>(isAdmin);
 
   // Selected Option Index per step (-1 if unselected): stepKey -> index
   const [selectedPostureIndices, setSelectedPostureIndices] = useState<Record<string, number>>({
@@ -460,6 +464,102 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
     );
   }
 
+  // Helper for admin formula banner texts
+  const getFormulaTitle = () => {
+    switch (currentStep.key) {
+      case 'neck':
+        return 'RUMUS POSTUR LEHER (NECK SCORE)';
+      case 'trunk':
+        return 'RUMUS POSTUR PUNGGUNG (TRUNK SCORE)';
+      case 'legs':
+        return 'RUMUS POSTUR KAKI (LEGS SCORE)';
+      case 'load':
+        return 'RUMUS BEBAN & GAYA (LOAD SCORE)';
+      case 'upperArm':
+        return 'RUMUS LENGAN ATAS (UPPER ARM SCORE)';
+      case 'lowerArm':
+        return 'RUMUS LENGAN BAWAH (LOWER ARM SCORE)';
+      case 'wrist':
+        return 'RUMUS PERGELANGAN TANGAN (WRIST SCORE)';
+      case 'coupling_activity':
+        return currentLayer === 1
+          ? 'RUMUS KUALITAS KOPLING (COUPLING SCORE)'
+          : 'RUMUS SKOR AKTIVITAS (ACTIVITY SCORE)';
+      default:
+        return 'RUMUS KALKULASI REBA';
+    }
+  };
+
+  const getFormulaCalculation = () => {
+    const selectedOpt = currentStep.options[selectedPostureIndex ?? 0];
+    const baseScore = selectedOpt?.score ?? 0;
+    const adjCount = currentStep.adjustments
+      .filter((a) => selectedAdjustments[a.id])
+      .reduce((acc, a) => acc + a.points, 0);
+
+    if (currentLayer === 1) {
+      switch (currentStep.key) {
+        case 'neck':
+          return `Skor Dasar Leher = ${baseScore} Poin`;
+        case 'trunk':
+          return `Skor Dasar Punggung = ${baseScore} Poin`;
+        case 'legs':
+          return `Skor Dasar Kaki = ${baseScore} Poin`;
+        case 'load':
+          return `Skor Beban = ${baseScore} Poin`;
+        case 'upperArm':
+          return `Skor Dasar Lengan Atas = ${baseScore} Poin`;
+        case 'lowerArm':
+          return `Skor Lengan Bawah = ${baseScore} Poin`;
+        case 'wrist':
+          return `Skor Dasar Pergelangan = ${baseScore} Poin`;
+        case 'coupling_activity':
+          return `Skor Kopling = ${baseScore} Poin`;
+        default:
+          return `Skor Dasar = ${baseScore} Poin`;
+      }
+    } else {
+      const finalStepScore = baseScore + adjCount;
+      switch (currentStep.key) {
+        case 'neck':
+          return `Skor Akhir Leher = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
+        case 'trunk':
+          return `Skor Akhir Punggung = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
+        case 'legs':
+          return `Skor Akhir Kaki = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
+        case 'load':
+          return `Skor Akhir Beban = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
+        case 'upperArm':
+          return `Skor Akhir Lengan Atas = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
+        case 'wrist':
+          return `Skor Akhir Pergelangan = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
+        case 'coupling_activity':
+          return `Skor Aktivitas = +${adjCount} Poin`;
+        default:
+          return `Total Skor = ${finalStepScore} Poin`;
+      }
+    }
+  };
+
+  const getFormulaDetail = () => {
+    const selectedOpt = currentStep.options[selectedPostureIndex ?? 0];
+    if (currentLayer === 1) {
+      if (selectedPostureIndex === -1 || !selectedOpt) {
+        return 'Pilih opsi postur leher untuk menghitung skor.';
+      }
+      return `Opsi terpilih bernilai ${selectedOpt.score} Poin.`;
+    } else {
+      if (noneSelectedPerStep[currentStep.key]) {
+        return 'Tidak ada deviasi sudut tambahan (0 Poin penyesuaian).';
+      }
+      const activeAdjs = currentStep.adjustments.filter((a) => selectedAdjustments[a.id]);
+      if (activeAdjs.length === 0) {
+        return 'Pilih penyesuaian sudut atau centang Tidak Ada jika posisi netral.';
+      }
+      return `Tambahan penyesuaian: ${activeAdjs.map((a) => `${a.title} (+${a.points})`).join(', ')}.`;
+    }
+  };
+
   // ==================== 2. WIZARD VIEW (PERSIS SCREENSHOT & FLUTTER) ====================
   return (
     <div
@@ -539,6 +639,39 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
         >
           Penilaian REBA
         </span>
+
+        {/* Toggle Rumus Admin (Sama persis Screenshot 1 Flutter) */}
+        {isAdmin && (
+          <div style={{ marginLeft: 'auto' }}>
+            <button
+              type="button"
+              onClick={() => setShowAdminDetails(!showAdminDetails)}
+              style={{
+                backgroundColor: showAdminDetails ? '#0F172A' : '#F1F5F9',
+                border: showAdminDetails ? '1px solid #38BDF8' : '1px solid #CBD5E1',
+                borderRadius: 20,
+                padding: '5px 12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+                boxShadow: showAdminDetails ? '0 2px 6px rgba(15, 23, 42, 0.2)' : 'none',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Calculator size={13} color={showAdminDetails ? '#38BDF8' : '#64748B'} />
+              <span
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: showAdminDetails ? '#FFFFFF' : '#475569',
+                }}
+              >
+                {showAdminDetails ? 'Rumus: ON' : 'Mode User'}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Progress Subheader (Sama persis baris atas screenshot) */}
@@ -606,6 +739,88 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
           boxSizing: 'border-box',
         }}
       >
+        {/* Banner Rumus Khusus Admin (Sama persis Screenshot 1 Flutter) */}
+        {showAdminDetails && (
+          <div
+            style={{
+              backgroundColor: '#0F172A',
+              borderRadius: 14,
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              padding: '12px 14px',
+              marginBottom: 16,
+              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.15)',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 6,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div
+                  style={{
+                    padding: 5,
+                    backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                    borderRadius: 6,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Calculator size={15} color="#38BDF8" />
+                </div>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: '#38BDF8',
+                    letterSpacing: '0.2px',
+                  }}
+                >
+                  {getFormulaTitle()}
+                </span>
+              </div>
+              <div
+                style={{
+                  padding: '2px 8px',
+                  backgroundColor: '#1E293B',
+                  borderRadius: 4,
+                  border: '1px solid #334155',
+                  fontSize: 9.5,
+                  fontWeight: 700,
+                  color: '#94A3B8',
+                }}
+              >
+                Khusus Admin
+              </div>
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 800,
+                color: '#FFFFFF',
+                lineHeight: 1.35,
+              }}
+            >
+              {getFormulaCalculation()}
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                color: '#94A3B8',
+                marginTop: 4,
+                lineHeight: 1.35,
+              }}
+            >
+              {getFormulaDetail()}
+            </div>
+          </div>
+        )}
+
         {/* Layer 1: Pilihan Postur (2-Column Grid Sama Persis Screenshot) */}
         {currentLayer === 1 && (
           <div>
@@ -653,15 +868,53 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                       userSelect: 'none',
                     }}
                   >
-                    {/* Header Bar Kartu: Radio Button di Kanan Atas */}
+                    {/* Header Bar Kartu: Skor Admin di Kiri, Radio Button di Kanan (Screenshot 1) */}
                     <div
                       style={{
                         padding: '10px 10px 4px 10px',
                         display: 'flex',
-                        justifyContent: 'flex-end',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
                       }}
                     >
+                      {showAdminDetails ? (
+                        <div
+                          style={{
+                            padding: '3px 8px',
+                            borderRadius: 6,
+                            backgroundColor: isSelected
+                              ? option.color
+                              : option.score === 1
+                              ? '#DCFCE7'
+                              : option.score === 2
+                              ? '#FEF3C7'
+                              : '#FEE2E2',
+                            border: isSelected
+                              ? `1.2px solid ${option.color}`
+                              : `1.2px solid ${
+                                  option.score === 1
+                                    ? '#86EFAC'
+                                    : option.score === 2
+                                    ? '#FDE68A'
+                                    : '#FECACA'
+                                }`,
+                            fontSize: 11,
+                            fontWeight: 800,
+                            color: isSelected
+                              ? '#FFFFFF'
+                              : option.score === 1
+                              ? '#15803D'
+                              : option.score === 2
+                              ? '#B45309'
+                              : '#B91C1C',
+                          }}
+                        >
+                          {option.score} Poin
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+
                       <div
                         style={{
                           width: 22,
@@ -783,8 +1036,27 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 800, color: '#0F172A' }}>
-                    {isEng ? 'None' : 'Tidak ada'}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 14.5, fontWeight: 800, color: '#0F172A' }}>
+                      {isEng ? 'None' : 'Tidak ada'}
+                    </span>
+                    {showAdminDetails && (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          padding: '2px 6px',
+                          borderRadius: 6,
+                          backgroundColor: noneSelectedPerStep[currentStep.key]
+                            ? '#10B981'
+                            : '#F0FDF4',
+                          color: noneSelectedPerStep[currentStep.key] ? '#FFFFFF' : '#15803D',
+                          border: '1px solid #86EFAC',
+                        }}
+                      >
+                        +0 Poin
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
                     {isEng
@@ -846,8 +1118,25 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                     </div>
 
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14.5, fontWeight: 800, color: '#0F172A' }}>
-                        {adj.title}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 14.5, fontWeight: 800, color: '#0F172A' }}>
+                          {adj.title}
+                        </span>
+                        {showAdminDetails && (
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 800,
+                              padding: '2px 6px',
+                              borderRadius: 6,
+                              backgroundColor: isChecked ? adj.color : `${adj.color}15`,
+                              color: isChecked ? '#FFFFFF' : adj.color,
+                              border: `1px solid ${isChecked ? adj.color : `${adj.color}40`}`,
+                            }}
+                          >
+                            +{adj.points} Poin
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
                         {adj.subtitle}
