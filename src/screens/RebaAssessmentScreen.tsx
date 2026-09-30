@@ -23,6 +23,7 @@ interface RebaAssessmentScreenProps {
   onBack: () => void;
   onSaved: () => void;
   lang: 'ID' | 'ENG';
+  onToggleLang?: () => void;
 }
 
 export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
@@ -31,6 +32,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
   onBack,
   onSaved,
   lang,
+  onToggleLang,
 }) => {
   const isEng = lang === 'ENG';
 
@@ -226,7 +228,8 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
       lowerArm,
       wrist,
       coupling,
-      activity
+      activity,
+      isEng
     );
 
     return {
@@ -320,26 +323,52 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
           style={{
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'space-between',
             height: 48,
             marginBottom: 16,
           }}
         >
-          <button
-            onClick={handleBack}
-            type="button"
-            style={{
-              background: 'none',
-              border: 'none',
-              padding: 6,
-              cursor: 'pointer',
-              color: '#0F172A',
-            }}
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <span style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginLeft: 8 }}>
-            {isEng ? 'Assessment Results' : 'Hasil Akhir Penilaian REBA'}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={handleBack}
+              type="button"
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 6,
+                cursor: 'pointer',
+                color: '#0F172A',
+              }}
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <span style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', marginLeft: 8 }}>
+              {isEng ? 'Assessment Results' : 'Hasil Akhir Penilaian REBA'}
+            </span>
+          </div>
+
+          {onToggleLang && (
+            <button
+              onClick={onToggleLang}
+              type="button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: '#F1F5F9',
+                border: '1px solid #CBD5E1',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#0F172A',
+                cursor: 'pointer',
+              }}
+            >
+              <span>🌐</span>
+              <span>{isEng ? 'ENG' : 'IDN'}</span>
+            </button>
+          )}
         </div>
 
         {/* User Result Card (Persis Dialog Hasil Akhir REBA di Flutter: Lingkaran Ikon, Tingkat Risiko, Rekomendasi) */}
@@ -466,6 +495,30 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
 
   // Helper for admin formula banner texts
   const getFormulaTitle = () => {
+    if (isEng) {
+      switch (currentStep.key) {
+        case 'neck':
+          return 'NECK POSTURE FORMULA (NECK SCORE)';
+        case 'trunk':
+          return 'TRUNK POSTURE FORMULA (TRUNK SCORE)';
+        case 'legs':
+          return 'LEGS POSTURE FORMULA (LEGS SCORE)';
+        case 'load':
+          return 'LOAD & FORCE FORMULA (LOAD SCORE)';
+        case 'upperArm':
+          return 'UPPER ARM FORMULA (UPPER ARM SCORE)';
+        case 'lowerArm':
+          return 'LOWER ARM FORMULA (LOWER ARM SCORE)';
+        case 'wrist':
+          return 'WRIST FORMULA (WRIST SCORE)';
+        case 'coupling_activity':
+          return currentLayer === 1
+            ? 'COUPLING QUALITY FORMULA (COUPLING SCORE)'
+            : 'ACTIVITY SCORE FORMULA (ACTIVITY SCORE)';
+        default:
+          return 'REBA CALCULATION FORMULA';
+      }
+    }
     switch (currentStep.key) {
       case 'neck':
         return 'RUMUS POSTUR LEHER (NECK SCORE)';
@@ -497,7 +550,31 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
       .filter((a) => selectedAdjustments[a.id])
       .reduce((acc, a) => acc + a.points, 0);
 
+    const pointWord = isEng ? 'Points' : 'Poin';
+
     if (currentLayer === 1) {
+      if (isEng) {
+        switch (currentStep.key) {
+          case 'neck':
+            return `Base Neck Score = ${baseScore} ${pointWord}`;
+          case 'trunk':
+            return `Base Trunk Score = ${baseScore} ${pointWord}`;
+          case 'legs':
+            return `Base Legs Score = ${baseScore} ${pointWord}`;
+          case 'load':
+            return `Load Score = ${baseScore} ${pointWord}`;
+          case 'upperArm':
+            return `Base Upper Arm Score = ${baseScore} ${pointWord}`;
+          case 'lowerArm':
+            return `Lower Arm Score = ${baseScore} ${pointWord}`;
+          case 'wrist':
+            return `Base Wrist Score = ${baseScore} ${pointWord}`;
+          case 'coupling_activity':
+            return `Coupling Score = ${baseScore} ${pointWord}`;
+          default:
+            return `Base Score = ${baseScore} ${pointWord}`;
+        }
+      }
       switch (currentStep.key) {
         case 'neck':
           return `Skor Dasar Leher = ${baseScore} Poin`;
@@ -520,6 +597,26 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
       }
     } else {
       const finalStepScore = baseScore + adjCount;
+      if (isEng) {
+        switch (currentStep.key) {
+          case 'neck':
+            return `Final Neck Score = ${finalStepScore} ${pointWord} (${baseScore} + ${adjCount})`;
+          case 'trunk':
+            return `Final Trunk Score = ${finalStepScore} ${pointWord} (${baseScore} + ${adjCount})`;
+          case 'legs':
+            return `Final Legs Score = ${finalStepScore} ${pointWord} (${baseScore} + ${adjCount})`;
+          case 'load':
+            return `Final Load Score = ${finalStepScore} ${pointWord} (${baseScore} + ${adjCount})`;
+          case 'upperArm':
+            return `Final Upper Arm Score = ${finalStepScore} ${pointWord} (${baseScore} + ${adjCount})`;
+          case 'wrist':
+            return `Final Wrist Score = ${finalStepScore} ${pointWord} (${baseScore} + ${adjCount})`;
+          case 'coupling_activity':
+            return `Activity Score = +${adjCount} ${pointWord}`;
+          default:
+            return `Total Score = ${finalStepScore} ${pointWord}`;
+        }
+      }
       switch (currentStep.key) {
         case 'neck':
           return `Skor Akhir Leher = ${finalStepScore} Poin (${baseScore} + ${adjCount})`;
@@ -545,18 +642,31 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
     const selectedOpt = currentStep.options[selectedPostureIndex ?? 0];
     if (currentLayer === 1) {
       if (selectedPostureIndex === -1 || !selectedOpt) {
-        return 'Pilih opsi postur leher untuk menghitung skor.';
+        return isEng
+          ? 'Select a posture option to calculate score.'
+          : 'Pilih opsi postur leher untuk menghitung skor.';
       }
-      return `Opsi terpilih bernilai ${selectedOpt.score} Poin.`;
+      return isEng
+        ? `Selected option value: ${selectedOpt.score} Points.`
+        : `Opsi terpilih bernilai ${selectedOpt.score} Poin.`;
     } else {
       if (noneSelectedPerStep[currentStep.key]) {
-        return 'Tidak ada deviasi sudut tambahan (0 Poin penyesuaian).';
+        return isEng
+          ? 'No additional angle deviation (0 adjustment Points).'
+          : 'Tidak ada deviasi sudut tambahan (0 Poin penyesuaian).';
       }
       const activeAdjs = currentStep.adjustments.filter((a) => selectedAdjustments[a.id]);
       if (activeAdjs.length === 0) {
-        return 'Pilih penyesuaian sudut atau centang Tidak Ada jika posisi netral.';
+        return isEng
+          ? 'Select angle adjustments or check None if neutral.'
+          : 'Pilih penyesuaian sudut atau centang Tidak Ada jika posisi netral.';
       }
-      return `Tambahan penyesuaian: ${activeAdjs.map((a) => `${a.title} (+${a.points})`).join(', ')}.`;
+      const adjNames = activeAdjs
+        .map((a) => `${isEng ? (a.titleEn || a.title) : a.title} (+${a.points})`)
+        .join(', ');
+      return isEng
+        ? `Adjustment additions: ${adjNames}.`
+        : `Tambahan penyesuaian: ${adjNames}.`;
     }
   };
 
@@ -637,12 +747,35 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
             letterSpacing: '-0.2px',
           }}
         >
-          Penilaian REBA
+          {isEng ? 'REBA Assessment' : 'Penilaian REBA'}
         </span>
 
-        {/* Toggle Rumus Admin (Sama persis Screenshot 1 Flutter) */}
-        {isAdmin && (
-          <div style={{ marginLeft: 'auto' }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          {onToggleLang && (
+            <button
+              onClick={onToggleLang}
+              type="button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: '#F1F5F9',
+                border: '1px solid #CBD5E1',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#0F172A',
+                cursor: 'pointer',
+              }}
+            >
+              <span>🌐</span>
+              <span>{isEng ? 'ENG' : 'IDN'}</span>
+            </button>
+          )}
+
+          {/* Toggle Rumus Admin (Sama persis Screenshot 1 Flutter) */}
+          {isAdmin && (
             <button
               type="button"
               onClick={() => setShowAdminDetails(!showAdminDetails)}
@@ -667,11 +800,11 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                   color: showAdminDetails ? '#FFFFFF' : '#475569',
                 }}
               >
-                {showAdminDetails ? 'Rumus: ON' : 'Mode User'}
+                {showAdminDetails ? (isEng ? 'Formula: ON' : 'Rumus: ON') : (isEng ? 'User Mode' : 'Mode User')}
               </span>
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Progress Subheader (Sama persis baris atas screenshot) */}
@@ -697,7 +830,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
               color: '#0284C7',
             }}
           >
-            {currentStep.subHeaderTitle}
+            {isEng ? (currentStep.subHeaderTitleEn || currentStep.subHeaderTitle) : currentStep.subHeaderTitle}
           </span>
           <span
             style={{
@@ -706,7 +839,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
               color: '#64748B',
             }}
           >
-            {currentStep.stepLabel}
+            {isEng ? (currentStep.stepLabelEn || currentStep.stepLabel) : currentStep.stepLabel}
           </span>
         </div>
 
@@ -794,7 +927,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                   color: '#94A3B8',
                 }}
               >
-                Khusus Admin
+                {isEng ? 'Admin Only' : 'Khusus Admin'}
               </div>
             </div>
             <div
@@ -834,7 +967,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                 margin: '0 0 16px 0',
               }}
             >
-              {currentStep.questionTitle}
+              {isEng ? (currentStep.questionTitleEn || currentStep.questionTitle) : currentStep.questionTitle}
             </h2>
 
             {/* 2-Column Grid Kartu Postur */}
@@ -909,7 +1042,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                               : '#B91C1C',
                           }}
                         >
-                          {option.score} Poin
+                          {option.score} {isEng ? 'Points' : 'Poin'}
                         </div>
                       ) : (
                         <div />
@@ -995,7 +1128,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                 margin: '0 0 16px 0',
               }}
             >
-              {currentStep.adjustmentQuestionTitle}
+              {isEng ? (currentStep.adjustmentQuestionTitleEn || currentStep.adjustmentQuestionTitle) : currentStep.adjustmentQuestionTitle}
             </h2>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1054,7 +1187,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                           border: '1px solid #86EFAC',
                         }}
                       >
-                        +0 Poin
+                        +0 {isEng ? 'Points' : 'Poin'}
                       </span>
                     )}
                   </div>
@@ -1120,7 +1253,7 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 14.5, fontWeight: 800, color: '#0F172A' }}>
-                          {adj.title}
+                          {isEng ? (adj.titleEn || adj.title) : adj.title}
                         </span>
                         {showAdminDetails && (
                           <span
@@ -1134,12 +1267,12 @@ export const RebaAssessmentScreen: React.FC<RebaAssessmentScreenProps> = ({
                               border: `1px solid ${isChecked ? adj.color : `${adj.color}40`}`,
                             }}
                           >
-                            +{adj.points} Poin
+                            +{adj.points} {isEng ? 'Points' : 'Poin'}
                           </span>
                         )}
                       </div>
                       <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>
-                        {adj.subtitle}
+                        {isEng ? (adj.subtitleEn || adj.subtitle) : adj.subtitle}
                       </div>
                     </div>
 

@@ -18,53 +18,62 @@ interface NbmAssessmentScreenProps {
   onBack: () => void;
   onSaved: () => void;
   lang?: 'ID' | 'ENG';
+  onToggleLang?: () => void;
 }
 
 interface BodyPart {
   id: number;
   name: string;
+  nameEn: string;
   region: string;
+  regionEn: string;
   iconType: 'person' | 'hand' | 'leg';
 }
 
 const BODY_PARTS: BodyPart[] = [
-  { id: 0, name: 'Leher bagian atas', region: 'Leher & Bahu', iconType: 'person' },
-  { id: 1, name: 'Leher bagian bawah', region: 'Leher & Bahu', iconType: 'person' },
-  { id: 2, name: 'Bahu kiri', region: 'Leher & Bahu', iconType: 'person' },
-  { id: 3, name: 'Bahu kanan', region: 'Leher & Bahu', iconType: 'person' },
-  { id: 4, name: 'Lengan atas kiri', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 5, name: 'Punggung', region: 'Punggung & Badan', iconType: 'person' },
-  { id: 6, name: 'Lengan atas kanan', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 7, name: 'Pinggang', region: 'Punggung & Badan', iconType: 'person' },
-  { id: 8, name: 'Bokong', region: 'Punggung & Badan', iconType: 'person' },
-  { id: 9, name: 'Pantat', region: 'Punggung & Badan', iconType: 'person' },
-  { id: 10, name: 'Siku kiri', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 11, name: 'Siku kanan', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 12, name: 'Lengan bawah kiri', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 13, name: 'Lengan bawah kanan', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 14, name: 'Pergelangan tangan kiri', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 15, name: 'Pergelangan tangan kanan', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 16, name: 'Tangan kiri', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 17, name: 'Tangan kanan', region: 'Lengan & Tangan', iconType: 'hand' },
-  { id: 18, name: 'Paha kiri', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 19, name: 'Paha kanan', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 20, name: 'Lutut kiri', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 21, name: 'Lutut kanan', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 22, name: 'Betis kiri', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 23, name: 'Betis kanan', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 24, name: 'Pergelangan kaki kiri', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 25, name: 'Pergelangan kaki kanan', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 26, name: 'Kaki kiri', region: 'Kaki & Tungkai', iconType: 'leg' },
-  { id: 27, name: 'Kaki kanan', region: 'Kaki & Tungkai', iconType: 'leg' },
+  { id: 0, name: 'Leher bagian atas', nameEn: 'Upper Neck', region: 'Leher & Bahu', regionEn: 'Neck & Shoulders', iconType: 'person' },
+  { id: 1, name: 'Leher bagian bawah', nameEn: 'Lower Neck', region: 'Leher & Bahu', regionEn: 'Neck & Shoulders', iconType: 'person' },
+  { id: 2, name: 'Bahu kiri', nameEn: 'Left Shoulder', region: 'Leher & Bahu', regionEn: 'Neck & Shoulders', iconType: 'person' },
+  { id: 3, name: 'Bahu kanan', nameEn: 'Right Shoulder', region: 'Leher & Bahu', regionEn: 'Neck & Shoulders', iconType: 'person' },
+  { id: 4, name: 'Lengan atas kiri', nameEn: 'Left Upper Arm', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 5, name: 'Punggung', nameEn: 'Upper Back', region: 'Punggung & Badan', regionEn: 'Back & Torso', iconType: 'person' },
+  { id: 6, name: 'Lengan atas kanan', nameEn: 'Right Upper Arm', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 7, name: 'Pinggang', nameEn: 'Waist / Lower Back', region: 'Punggung & Badan', regionEn: 'Back & Torso', iconType: 'person' },
+  { id: 8, name: 'Bokong', nameEn: 'Buttocks', region: 'Punggung & Badan', regionEn: 'Back & Torso', iconType: 'person' },
+  { id: 9, name: 'Pantat', nameEn: 'Bottom', region: 'Punggung & Badan', regionEn: 'Back & Torso', iconType: 'person' },
+  { id: 10, name: 'Siku kiri', nameEn: 'Left Elbow', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 11, name: 'Siku kanan', nameEn: 'Right Elbow', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 12, name: 'Lengan bawah kiri', nameEn: 'Left Forearm', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 13, name: 'Lengan bawah kanan', nameEn: 'Right Forearm', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 14, name: 'Pergelangan tangan kiri', nameEn: 'Left Wrist', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 15, name: 'Pergelangan tangan kanan', nameEn: 'Right Wrist', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 16, name: 'Tangan kiri', nameEn: 'Left Hand', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 17, name: 'Tangan kanan', nameEn: 'Right Hand', region: 'Lengan & Tangan', regionEn: 'Arms & Hands', iconType: 'hand' },
+  { id: 18, name: 'Paha kiri', nameEn: 'Left Thigh', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 19, name: 'Paha kanan', nameEn: 'Right Thigh', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 20, name: 'Lutut kiri', nameEn: 'Left Knee', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 21, name: 'Lutut kanan', nameEn: 'Right Knee', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 22, name: 'Betis kiri', nameEn: 'Left Calf', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 23, name: 'Betis kanan', nameEn: 'Right Calf', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 24, name: 'Pergelangan kaki kiri', nameEn: 'Left Ankle', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 25, name: 'Pergelangan kaki kanan', nameEn: 'Right Ankle', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 26, name: 'Kaki kiri', nameEn: 'Left Foot', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
+  { id: 27, name: 'Kaki kanan', nameEn: 'Right Foot', region: 'Kaki & Tungkai', regionEn: 'Legs & Feet', iconType: 'leg' },
 ];
 
-const REGIONS = ['Semua', 'Leher & Bahu', 'Punggung & Badan', 'Lengan & Tangan', 'Kaki & Tungkai'];
+const REGIONS = [
+  { id: 'all', name: 'Semua', nameEn: 'All' },
+  { id: 'neck', name: 'Leher & Bahu', nameEn: 'Neck & Shoulders' },
+  { id: 'back', name: 'Punggung & Badan', nameEn: 'Back & Torso' },
+  { id: 'arms', name: 'Lengan & Tangan', nameEn: 'Arms & Hands' },
+  { id: 'legs', name: 'Kaki & Tungkai', nameEn: 'Legs & Feet' },
+];
 
 const SCORE_OPTIONS = [
-  { score: 1, label: 'Tidak Sakit', color: '#10B981' },
-  { score: 2, label: 'Agak Sakit', color: '#F59E0B' },
-  { score: 3, label: 'Sakit', color: '#EA580C' },
-  { score: 4, label: 'Sangat Sakit', color: '#DC2626' },
+  { score: 1, label: 'Tidak Sakit', labelEn: 'No Pain', color: '#10B981' },
+  { score: 2, label: 'Agak Sakit', labelEn: 'Mild Pain', color: '#F59E0B' },
+  { score: 3, label: 'Sakit', labelEn: 'Painful', color: '#EA580C' },
+  { score: 4, label: 'Sangat Sakit', labelEn: 'Severe Pain', color: '#DC2626' },
 ];
 
 export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
@@ -72,11 +81,12 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
   onBack,
   onSaved,
   lang = 'ID',
+  onToggleLang,
 }) => {
   const isEng = lang === 'ENG';
 
   const [scores, setScores] = useState<Record<number, number | null>>({});
-  const [selectedRegion, setSelectedRegion] = useState('Semua');
+  const [selectedRegionId, setSelectedRegionId] = useState('all');
   const [highlightedCardId, setHighlightedCardId] = useState<number | null>(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
@@ -159,15 +169,21 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
   });
 
   const filteredParts =
-    selectedRegion === 'Semua'
+    selectedRegionId === 'all'
       ? BODY_PARTS
-      : BODY_PARTS.filter((bp) => bp.region === selectedRegion);
+      : BODY_PARTS.filter((bp) => {
+          if (selectedRegionId === 'neck') return bp.region === 'Leher & Bahu';
+          if (selectedRegionId === 'back') return bp.region === 'Punggung & Badan';
+          if (selectedRegionId === 'arms') return bp.region === 'Lengan & Tangan';
+          if (selectedRegionId === 'legs') return bp.region === 'Kaki & Tungkai';
+          return true;
+        });
 
   const scrollToFirstUnanswered = () => {
     const unanswered = BODY_PARTS.find((bp) => scores[bp.id] === null || scores[bp.id] === undefined);
     if (unanswered) {
-      if (selectedRegion !== 'Semua' && unanswered.region !== selectedRegion) {
-        setSelectedRegion('Semua');
+      if (selectedRegionId !== 'all') {
+        setSelectedRegionId('all');
       }
 
       setHighlightedCardId(unanswered.id);
@@ -179,10 +195,11 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
         }
       }, 100);
 
+      const partName = isEng ? unanswered.nameEn : unanswered.name;
       setToastMessage(
         isEng
-          ? `Directing to unanswered area: ${unanswered.name}`
-          : `Mengarahkan ke bagian yang belum diisi: ${unanswered.name}`
+          ? `Directing to unanswered area: ${partName}`
+          : `Mengarahkan ke bagian yang belum diisi: ${partName}`
       );
       setTimeout(() => setToastMessage(null), 2500);
     }
@@ -327,31 +344,56 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setShowGuideModal(true);
-          }}
-          type="button"
-          title={isEng ? 'NBM Score Guide' : 'Panduan Skor NBM'}
-          aria-label="Panduan Skor NBM"
-          style={{
-            background: 'none',
-            border: 'none',
-            padding: 8,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#0284C7',
-            borderRadius: 8,
-            position: 'relative',
-            zIndex: 30,
-          }}
-        >
-          <Info size={22} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {onToggleLang && (
+            <button
+              onClick={onToggleLang}
+              type="button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: '#F1F5F9',
+                border: '1px solid #CBD5E1',
+                borderRadius: 20,
+                padding: '4px 10px',
+                fontSize: 11,
+                fontWeight: 800,
+                color: '#0F172A',
+                cursor: 'pointer',
+              }}
+            >
+              <span>🌐</span>
+              <span>{isEng ? 'ENG' : 'IDN'}</span>
+            </button>
+          )}
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowGuideModal(true);
+            }}
+            type="button"
+            title={isEng ? 'NBM Score Guide' : 'Panduan Skor NBM'}
+            aria-label="Panduan Skor NBM"
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 8,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#0284C7',
+              borderRadius: 8,
+              position: 'relative',
+              zIndex: 30,
+            }}
+          >
+            <Info size={22} />
+          </button>
+        </div>
       </div>
 
       {/* Progress Bar Container */}
@@ -405,11 +447,11 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
         }}
       >
         {REGIONS.map((region) => {
-          const isSelected = selectedRegion === region;
+          const isSelected = selectedRegionId === region.id;
           return (
             <button
-              key={region}
-              onClick={() => setSelectedRegion(region)}
+              key={region.id}
+              onClick={() => setSelectedRegionId(region.id)}
               type="button"
               style={{
                 padding: '6px 14px',
@@ -425,7 +467,7 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
                 transition: 'all 0.15s ease',
               }}
             >
-              {region}
+              {isEng ? region.nameEn : region.name}
             </button>
           );
         })}
@@ -492,7 +534,7 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
                     color: '#0F172A',
                   }}
                 >
-                  {bp.name}
+                  {isEng ? bp.nameEn : bp.name}
                 </span>
               </div>
 
@@ -519,7 +561,7 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
                         transition: 'all 0.15s ease',
                       }}
                     >
-                      {opt.label}
+                      {isEng ? opt.labelEn : opt.label}
                     </button>
                   );
                 })}
@@ -642,10 +684,10 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 14 }}>
               {[
-                { title: 'Poin 1', desc: 'Tidak Sakit', color: '#059669', bg: '#D1FAE5' },
-                { title: 'Poin 2', desc: 'Agak Sakit', color: '#D97706', bg: '#FEF3C7' },
-                { title: 'Poin 3', desc: 'Sakit', color: '#EA580C', bg: '#FFEDD5' },
-                { title: 'Poin 4', desc: 'Sangat Sakit', color: '#DC2626', bg: '#FEE2E2' },
+                { title: isEng ? 'Point 1' : 'Poin 1', desc: isEng ? 'No Pain' : 'Tidak Sakit', color: '#059669', bg: '#D1FAE5' },
+                { title: isEng ? 'Point 2' : 'Poin 2', desc: isEng ? 'Mild Pain' : 'Agak Sakit', color: '#D97706', bg: '#FEF3C7' },
+                { title: isEng ? 'Point 3' : 'Poin 3', desc: isEng ? 'Painful' : 'Sakit', color: '#EA580C', bg: '#FFEDD5' },
+                { title: isEng ? 'Point 4' : 'Poin 4', desc: isEng ? 'Severe Pain' : 'Sangat Sakit', color: '#DC2626', bg: '#FEE2E2' },
               ].map((item) => (
                 <div key={item.title} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span
@@ -678,10 +720,10 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 16 }}>
               {[
-                { range: '28 – 49', desc: 'Rendah (Belum perlu tindakan)', color: '#059669', bg: '#D1FAE5' },
-                { range: '50 – 70', desc: 'Sedang (Mungkin perlu perbaikan)', color: '#D97706', bg: '#FEF3C7' },
-                { range: '71 – 90', desc: 'Tinggi (Tindakan perbaikan segera)', color: '#EA580C', bg: '#FFEDD5' },
-                { range: '91 – 112', desc: 'Sangat Tinggi (Tindakan saat ini juga)', color: '#DC2626', bg: '#FEE2E2' },
+                { range: '28 – 49', desc: isEng ? 'Low (No action needed yet)' : 'Rendah (Belum perlu tindakan)', color: '#059669', bg: '#D1FAE5' },
+                { range: '50 – 70', desc: isEng ? 'Medium (Improvement may be needed)' : 'Sedang (Mungkin perlu perbaikan)', color: '#D97706', bg: '#FEF3C7' },
+                { range: '71 – 90', desc: isEng ? 'High (Immediate improvement required)' : 'Tinggi (Tindakan perbaikan segera)', color: '#EA580C', bg: '#FFEDD5' },
+                { range: '91 – 112', desc: isEng ? 'Very High (Action required right now)' : 'Sangat Tinggi (Tindakan saat ini juga)', color: '#DC2626', bg: '#FEE2E2' },
               ].map((item) => (
                 <div key={item.range} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span
@@ -854,10 +896,10 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 18 }}>
                 {[
-                  { label: 'Tidak Sakit', count: countTidakSakit, color: '#10B981' },
-                  { label: 'Agak Sakit', count: countAgakSakit, color: '#F59E0B' },
-                  { label: 'Sakit', count: countSakit, color: '#EA580C' },
-                  { label: 'Sangat Sakit', count: countSangatSakit, color: '#DC2626' },
+                  { label: isEng ? 'No Pain' : 'Tidak Sakit', count: countTidakSakit, color: '#10B981' },
+                  { label: isEng ? 'Mild Pain' : 'Agak Sakit', count: countAgakSakit, color: '#F59E0B' },
+                  { label: isEng ? 'Painful' : 'Sakit', count: countSakit, color: '#EA580C' },
+                  { label: isEng ? 'Severe Pain' : 'Sangat Sakit', count: countSangatSakit, color: '#DC2626' },
                 ].map((s) => (
                   <div
                     key={s.label}
@@ -909,7 +951,7 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
                               color: isSevere ? '#DC2626' : '#EA580C',
                             }}
                           >
-                            {bp.name}
+                            {isEng ? bp.nameEn : bp.name}
                           </span>
                           <span
                             style={{
@@ -921,7 +963,7 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
                               borderRadius: 4,
                             }}
                           >
-                            {isSevere ? 'Sangat Sakit' : 'Sakit'}
+                            {isSevere ? (isEng ? 'Severe Pain' : 'Sangat Sakit') : (isEng ? 'Painful' : 'Sakit')}
                           </span>
                         </div>
                       );
@@ -947,29 +989,37 @@ export const NbmAssessmentScreen: React.FC<NbmAssessmentScreenProps> = ({
                 {[
                   {
                     range: '28 – 49',
-                    level: 'Rendah',
-                    action: 'Pertahankan postur kerja ergonomis dan lakukan peregangan rutin.',
+                    level: isEng ? 'Low' : 'Rendah',
+                    action: isEng
+                      ? 'Maintain ergonomic postures and perform routine stretches.'
+                      : 'Pertahankan postur kerja ergonomis dan lakukan peregangan rutin.',
                     color: '#10B981',
                     isCurrent: totalScore >= 28 && totalScore <= 49,
                   },
                   {
                     range: '50 – 70',
-                    level: 'Sedang',
-                    action: 'Evaluasi stasiun kerja dan atur waktu istirahat secara berkala.',
+                    level: isEng ? 'Medium' : 'Sedang',
+                    action: isEng
+                      ? 'Evaluate workstations and schedule periodic rest breaks.'
+                      : 'Evaluasi stasiun kerja dan atur waktu istirahat secara berkala.',
                     color: '#F59E0B',
                     isCurrent: totalScore >= 50 && totalScore <= 70,
                   },
                   {
                     range: '71 – 90',
-                    level: 'Tinggi',
-                    action: 'Investigasi menyeluruh stasiun kerja dan perbaiki postur janggal segera.',
+                    level: isEng ? 'High' : 'Tinggi',
+                    action: isEng
+                      ? 'Thoroughly investigate workstation and correct awkward postures immediately.'
+                      : 'Investigasi menyeluruh stasiun kerja dan perbaiki postur janggal segera.',
                     color: '#EA580C',
                     isCurrent: totalScore >= 71 && totalScore <= 90,
                   },
                   {
                     range: '91 – 112',
-                    level: 'Sangat Tinggi',
-                    action: 'Hentikan aktivitas berisiko tinggi dan lakukan redesain ergonomi segera!',
+                    level: isEng ? 'Very High' : 'Sangat Tinggi',
+                    action: isEng
+                      ? 'Stop high-risk activities and conduct ergonomic redesign immediately!'
+                      : 'Hentikan aktivitas berisiko tinggi dan lakukan redesain ergonomi segera!',
                     color: '#DC2626',
                     isCurrent: totalScore >= 91,
                   },

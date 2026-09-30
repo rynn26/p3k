@@ -31,7 +31,9 @@ import {
   FileText,
   User,
   RefreshCw,
+  FileSpreadsheet,
 } from 'lucide-react';
+import { exportAllDataToExcel, exportSingleCategoryToExcel } from '../utils/excelExport';
 
 interface AdminManagementScreenProps {
   onBackToHome: () => void;
@@ -80,7 +82,48 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
 
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
   const [showLogoutModal, setShowLogoutModal] = useState<boolean>(false);
+  const [showExportModal, setShowExportModal] = useState<boolean>(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+  const handleExportAll = () => {
+    try {
+      exportAllDataToExcel({
+        companies,
+        departments,
+        workers,
+        rebaAssessments,
+        nbmAssessments,
+        lang,
+      });
+      setToastMsg(isEng ? 'Master Excel data exported successfully!' : 'Seluruh data berhasil diekspor ke Excel!');
+      setShowExportModal(false);
+      setTimeout(() => setToastMsg(null), 3000);
+    } catch (err) {
+      console.error('Export error:', err);
+      setToastMsg(isEng ? 'Failed to export Excel data' : 'Gagal mengekspor data ke Excel');
+      setTimeout(() => setToastMsg(null), 3000);
+    }
+  };
+
+  const handleExportCategory = (category: 'workers' | 'reba' | 'nbm' | 'companies') => {
+    try {
+      exportSingleCategoryToExcel(category, {
+        companies,
+        departments,
+        workers,
+        rebaAssessments,
+        nbmAssessments,
+        lang,
+      });
+      setToastMsg(isEng ? 'Data exported to Excel successfully!' : 'Data berhasil diekspor ke Excel!');
+      setShowExportModal(false);
+      setTimeout(() => setToastMsg(null), 3000);
+    } catch (err) {
+      console.error('Export error:', err);
+      setToastMsg(isEng ? 'Failed to export Excel data' : 'Gagal mengekspor data ke Excel');
+      setTimeout(() => setToastMsg(null), 3000);
+    }
+  };
 
   // Form states for Company
   const [compName, setCompName] = useState<string>('');
@@ -657,6 +700,32 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Export Excel Button */}
+          <button
+            onClick={() => setShowExportModal(true)}
+            type="button"
+            title={isEng ? 'Export Data to Excel' : 'Export Data ke Excel'}
+            style={{
+              height: 36,
+              padding: '0 12px',
+              borderRadius: 10,
+              backgroundColor: '#107C41',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              cursor: 'pointer',
+              color: '#FFFFFF',
+              fontSize: 12,
+              fontWeight: 800,
+              boxShadow: '0 2px 8px rgba(16, 124, 65, 0.28)',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <FileSpreadsheet size={16} />
+            <span>Export Excel</span>
+          </button>
+
           {/* Help Button */}
           <button
             onClick={() => setShowHelpModal(true)}
@@ -3285,6 +3354,258 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
               }}
             >
               Tutup Rincian
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== EXPORT EXCEL MODAL ==================== */}
+      {showExportModal && (
+        <div
+          onClick={() => setShowExportModal(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="fade-in"
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: 20,
+              maxWidth: 460,
+              width: '100%',
+              padding: '24px 20px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+              boxSizing: 'border-box',
+            }}
+          >
+            {/* Header Modal */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 10,
+                    backgroundColor: '#E8F5E9',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#107C41',
+                  }}
+                >
+                  <FileSpreadsheet size={22} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                    {isEng ? 'Export Data to Excel (.xlsx)' : 'Export Data ke Excel (.xlsx)'}
+                  </h3>
+                  <p style={{ fontSize: 11, color: '#64748B', margin: '2px 0 0 0' }}>
+                    {isEng ? 'Select which data report you want to download' : 'Pilih format laporan spreadsheet yang ingin diunduh'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowExportModal(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#94A3B8' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Export Option Cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
+              {/* Option 1: Master All Data */}
+              <button
+                type="button"
+                onClick={handleExportAll}
+                style={{
+                  padding: '14px',
+                  borderRadius: 14,
+                  border: '2px solid #107C41',
+                  backgroundColor: '#F0FDF4',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                    <span style={{ fontSize: 13.5, fontWeight: 800, color: '#107C41' }}>
+                      {isEng ? '📊 All Data (Master Multi-Sheet)' : '📊 Semua Data (Master Multi-Sheet)'}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 9.5,
+                        fontWeight: 800,
+                        backgroundColor: '#107C41',
+                        color: '#FFFFFF',
+                        padding: '1px 6px',
+                        borderRadius: 4,
+                      }}
+                    >
+                      {isEng ? 'RECOMMENDED' : 'LENGKAP'}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11, color: '#334155', lineHeight: 1.35 }}>
+                    {isEng
+                      ? 'Single workbook with 4 sheets: Workers, REBA, NBM, and Companies & Units'
+                      : '1 file Excel berisi 4 Sheet lengkap: Pekerja, Asesmen REBA, NBM, serta Instansi & Unit'}
+                  </div>
+                </div>
+                <ChevronRight size={18} color="#107C41" />
+              </button>
+
+              {/* Option 2: Workers Only */}
+              <button
+                type="button"
+                onClick={() => handleExportCategory('workers')}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  border: '1px solid #E2E8F0',
+                  backgroundColor: '#FFFFFF',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>
+                    {isEng ? '👷 Workers Data Only' : '👷 Data Pekerja Saja'}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: '#64748B' }}>
+                    {isEng
+                      ? `Profiles, employee IDs, departments, age, and contact details (${workers.length} workers)`
+                      : `Profil, NIK, jabatan, departemen, usia, dan data diri (${workers.length} pekerja)`}
+                  </div>
+                </div>
+                <ChevronRight size={18} color="#64748B" />
+              </button>
+
+              {/* Option 3: REBA Only */}
+              <button
+                type="button"
+                onClick={() => handleExportCategory('reba')}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  border: '1px solid #E2E8F0',
+                  backgroundColor: '#FFFFFF',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>
+                    {isEng ? '📋 REBA Assessments Only' : '📋 Hasil Asesmen REBA Saja'}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: '#64748B' }}>
+                    {isEng
+                      ? `Detailed posture scores, Risk Levels & Action recommendations (${rebaAssessments.length} records)`
+                      : `Skor postur A/B/C, skor akhir, tingkat risiko & rekomendasi tindakan (${rebaAssessments.length} asesmen)`}
+                  </div>
+                </div>
+                <ChevronRight size={18} color="#64748B" />
+              </button>
+
+              {/* Option 4: NBM Only */}
+              <button
+                type="button"
+                onClick={() => handleExportCategory('nbm')}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  border: '1px solid #E2E8F0',
+                  backgroundColor: '#FFFFFF',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>
+                    {isEng ? '🩺 NBM Survey Assessments Only' : '🩺 Hasil Asesmen NBM Saja'}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: '#64748B' }}>
+                    {isEng
+                      ? `Musculoskeletal pain symptoms, total score & risk classification (${nbmAssessments.length} records)`
+                      : `Survei 28 keluhan otot rangka, total skor & klasifikasi risiko (${nbmAssessments.length} asesmen)`}
+                  </div>
+                </div>
+                <ChevronRight size={18} color="#64748B" />
+              </button>
+
+              {/* Option 5: Companies & Units */}
+              <button
+                type="button"
+                onClick={() => handleExportCategory('companies')}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  border: '1px solid #E2E8F0',
+                  backgroundColor: '#FFFFFF',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>
+                    {isEng ? '🏢 Companies & Departments' : '🏢 Data Instansi & Unit Kerja'}
+                  </div>
+                  <div style={{ fontSize: 10.5, color: '#64748B' }}>
+                    {isEng
+                      ? `Company directory, PIC, contact information & registered units (${companies.length} companies)`
+                      : `Direktori perusahaan, PIC K3, kontak & unit departemen (${companies.length} instansi)`}
+                  </div>
+                </div>
+                <ChevronRight size={18} color="#64748B" />
+              </button>
+            </div>
+
+            {/* Footer Close */}
+            <button
+              type="button"
+              onClick={() => setShowExportModal(false)}
+              style={{
+                width: '100%',
+                padding: '11px',
+                borderRadius: 10,
+                border: '1px solid #E2E8F0',
+                backgroundColor: '#F8FAFC',
+                color: '#475569',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {isEng ? 'Cancel' : 'Batal'}
             </button>
           </div>
         </div>

@@ -6,6 +6,7 @@ interface ErgonomicsHubScreenProps {
   onStartReba: () => void;
   onStartNbm: () => void;
   lang: 'ID' | 'ENG';
+  onToggleLang?: () => void;
 }
 
 export const ErgonomicsHubScreen: React.FC<ErgonomicsHubScreenProps> = ({
@@ -13,6 +14,7 @@ export const ErgonomicsHubScreen: React.FC<ErgonomicsHubScreenProps> = ({
   onStartReba,
   onStartNbm,
   lang,
+  onToggleLang,
 }) => {
   const isEng = lang === 'ENG';
 
@@ -60,7 +62,30 @@ export const ErgonomicsHubScreen: React.FC<ErgonomicsHubScreenProps> = ({
           {isEng ? 'Ergonomics Assessment' : 'Penilaian Ergonomi'}
         </span>
 
-        <div style={{ width: 30 }} />
+        {onToggleLang ? (
+          <button
+            onClick={onToggleLang}
+            type="button"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              backgroundColor: '#F1F5F9',
+              border: '1px solid #CBD5E1',
+              borderRadius: 20,
+              padding: '4px 10px',
+              fontSize: 11,
+              fontWeight: 800,
+              color: '#0F172A',
+              cursor: 'pointer',
+            }}
+          >
+            <span>🌐</span>
+            <span>{isEng ? 'ENG' : 'IDN'}</span>
+          </button>
+        ) : (
+          <div style={{ width: 30 }} />
+        )}
       </div>
 
       {/* Body Content */}

@@ -126,7 +126,8 @@ export class RebaScoringEngine {
     lowerArm: number,
     wrist: number,
     coupling: number,
-    activity: number
+    activity: number,
+    isEng: boolean = false
   ): {
     scoreA: number;
     scoreB: number;
@@ -150,24 +151,24 @@ export class RebaScoringEngine {
     let color = '';
 
     if (finalScore <= 1) {
-      riskLevel = 'Diabaikan (Negligible)';
-      action = 'Tidak perlu tindakan.';
+      riskLevel = isEng ? 'Negligible' : 'Diabaikan (Negligible)';
+      action = isEng ? 'No action necessary.' : 'Tidak perlu tindakan.';
       color = '#0EA5E9';
     } else if (finalScore <= 3) {
-      riskLevel = 'Rendah (Low)';
-      action = 'Mungkin perlu tindakan perbaikan.';
+      riskLevel = isEng ? 'Low' : 'Rendah (Low)';
+      action = isEng ? 'Action may be necessary.' : 'Mungkin perlu tindakan perbaikan.';
       color = '#10B981';
     } else if (finalScore <= 7) {
-      riskLevel = 'Sedang (Medium)';
-      action = 'Perlu tindakan perbaikan dalam waktu dekat.';
+      riskLevel = isEng ? 'Medium' : 'Sedang (Medium)';
+      action = isEng ? 'Action necessary soon.' : 'Perlu tindakan perbaikan dalam waktu dekat.';
       color = '#F59E0B';
     } else if (finalScore <= 10) {
-      riskLevel = 'Tinggi (High)';
-      action = 'Perlu tindakan perbaikan segera.';
+      riskLevel = isEng ? 'High' : 'Tinggi (High)';
+      action = isEng ? 'Action necessary immediately.' : 'Perlu tindakan perbaikan segera.';
       color = '#EA580C';
     } else {
-      riskLevel = 'Sangat Tinggi (Very High)';
-      action = 'Perlu tindakan perbaikan menyeluruh sekarang juga.';
+      riskLevel = isEng ? 'Very High' : 'Sangat Tinggi (Very High)';
+      action = isEng ? 'Comprehensive action necessary right now.' : 'Perlu tindakan perbaikan menyeluruh sekarang juga.';
       color = '#DC2626';
     }
 

@@ -294,6 +294,7 @@ export const App: React.FC = () => {
           onStartReba={() => setCurrentView('REBA_WIZARD')}
           onStartNbm={() => setCurrentView('NBM_SURVEY')}
           lang={lang}
+          onToggleLang={toggleLanguage}
         />
       )}
 
@@ -308,6 +309,7 @@ export const App: React.FC = () => {
             setActiveTab(1); // open history tab
           }}
           lang={lang}
+          onToggleLang={toggleLanguage}
         />
       )}
 
@@ -321,6 +323,7 @@ export const App: React.FC = () => {
             setActiveTab(1); // open history tab
           }}
           lang={lang}
+          onToggleLang={toggleLanguage}
         />
       )}
 

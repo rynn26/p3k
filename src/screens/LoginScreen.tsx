@@ -345,17 +345,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
         />
       </div>
 
-      {/* Centered Brand Logo */}
-      <div style={{ textAlign: 'center', marginTop: 4, marginBottom: 18 }}>
-        <img
-          src="/images/logo.png"
-          alt="HERU Logo"
-          style={{ height: 72, objectFit: 'contain' }}
-          onError={(e) => {
-            (e.target as HTMLElement).style.display = 'none';
-          }}
-        />
-      </div>
 
       {/* Title & Subtitle */}
       <div style={{ marginBottom: 28 }}>
