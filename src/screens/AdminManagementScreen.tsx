@@ -700,32 +700,6 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {/* Export Excel Button */}
-          <button
-            onClick={() => setShowExportModal(true)}
-            type="button"
-            title={isEng ? 'Export Data to Excel' : 'Export Data ke Excel'}
-            style={{
-              height: 36,
-              padding: '0 12px',
-              borderRadius: 10,
-              backgroundColor: '#107C41',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              cursor: 'pointer',
-              color: '#FFFFFF',
-              fontSize: 12,
-              fontWeight: 800,
-              boxShadow: '0 2px 8px rgba(16, 124, 65, 0.28)',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            <FileSpreadsheet size={16} />
-            <span>Export Excel</span>
-          </button>
-
           {/* Help Button */}
           <button
             onClick={() => setShowHelpModal(true)}
@@ -979,13 +953,19 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
             { id: 2, label: 'Pekerja', icon: Contact },
             { id: 3, label: 'Asesmen & Rumus', icon: BarChart3 },
             { id: 4, label: 'Master K3', icon: SlidersHorizontal },
+            { id: 5, label: 'Laporan', icon: FileSpreadsheet },
           ].map((tab) => {
             const IconComp = tab.icon;
             const isSel = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  if (tab.id === 5) {
+                    setShowExportModal(true);
+                  }
+                }}
                 type="button"
                 style={{
                   display: 'flex',
@@ -2277,6 +2257,324 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
               </div>
             </div>
           )}
+
+          {/* ==================== TAB 5: LAPORAN & EKSPOR DATA ==================== */}
+          {activeTab === 5 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Info Card */}
+              <div
+                style={{
+                  backgroundColor: '#F0FDF4',
+                  border: '1px solid #BBF7D0',
+                  borderRadius: 14,
+                  padding: '14px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                }}
+              >
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    backgroundColor: '#DCFCE7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#16A34A',
+                    flexShrink: 0,
+                  }}
+                >
+                  <FileSpreadsheet size={20} />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: 13.5, fontWeight: 800, color: '#14532D', margin: '0 0 2px 0' }}>
+                    {isEng ? 'OHS Reports & Data Center' : 'Pusat Laporan & Data K3'}
+                  </h4>
+                  <p style={{ fontSize: 11.5, color: '#166534', margin: 0, lineHeight: 1.4 }}>
+                    {isEng
+                      ? 'Download comprehensive records of master data, worker profiles, and ergonomics assessments in Excel (.xlsx) format.'
+                      : 'Unduh laporan rekapitulasi data master, profil pekerja, dan evaluasi asesmen ergonomi dalam format spreadsheet Excel (.xlsx).'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Big Action Button to open popup */}
+              <div
+                onClick={() => setShowExportModal(true)}
+                style={{
+                  padding: '16px',
+                  borderRadius: 16,
+                  background: 'linear-gradient(135deg, #107C41 0%, #15803D 100%)',
+                  boxShadow: '0 4px 14px rgba(16, 124, 65, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  color: '#FFFFFF',
+                  transition: 'transform 0.15s ease',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
+                      backgroundColor: 'rgba(255, 255, 255, 0.18)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#FFFFFF',
+                    }}
+                  >
+                    <FileSpreadsheet size={24} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800 }}>
+                      {isEng ? 'Select Report Format' : 'Pilih Format Laporan'}
+                    </div>
+                    <div style={{ fontSize: 11.5, opacity: 0.9, marginTop: 2 }}>
+                      {isEng ? 'Click to open popup dialog for report options' : 'Klik untuk menampilkan popup pilihan laporan'}
+                    </div>
+                  </div>
+                </div>
+                <ChevronRight size={20} color="#FFFFFF" />
+              </div>
+
+              {/* Categories Section */}
+              <div style={{ marginTop: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <div style={{ width: 4, height: 16, backgroundColor: '#0F172A', borderRadius: 2 }} />
+                  <span style={{ fontSize: 13.5, fontWeight: 800, color: '#0F172A' }}>
+                    {isEng ? 'Available Report Categories' : 'Kategori Laporan Tersedia'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {/* Item 1 */}
+                  <div
+                    onClick={handleExportAll}
+                    style={{
+                      padding: '14px',
+                      borderRadius: 14,
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 10,
+                          backgroundColor: '#E8F5E9',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#107C41',
+                        }}
+                      >
+                        <FileSpreadsheet size={20} />
+                      </div>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                            Semua Data Master (Multi-Sheet)
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 9.5,
+                              fontWeight: 800,
+                              backgroundColor: '#E8F5E9',
+                              color: '#107C41',
+                              padding: '1px 6px',
+                              borderRadius: 4,
+                            }}
+                          >
+                            LENGKAP
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                          Pekerja, REBA, NBM, Instansi & Unit Kerja dalam 1 berkas
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} color="#94A3B8" />
+                  </div>
+
+                  {/* Item 2 */}
+                  <div
+                    onClick={() => handleExportCategory('workers')}
+                    style={{
+                      padding: '14px',
+                      borderRadius: 14,
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 10,
+                          backgroundColor: '#E0F2FE',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#0284C7',
+                        }}
+                      >
+                        <Users size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                          Data Seluruh Pekerja
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                          {workers.length} data profil pekerja terdaftar
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} color="#94A3B8" />
+                  </div>
+
+                  {/* Item 3 */}
+                  <div
+                    onClick={() => handleExportCategory('reba')}
+                    style={{
+                      padding: '14px',
+                      borderRadius: 14,
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 10,
+                          backgroundColor: '#EFF6FF',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#2563EB',
+                        }}
+                      >
+                        <BarChart3 size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                          Hasil Asesmen Ergonomi REBA
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                          {rebaAssessments.length} riwayat evaluasi postur kerja
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} color="#94A3B8" />
+                  </div>
+
+                  {/* Item 4 */}
+                  <div
+                    onClick={() => handleExportCategory('nbm')}
+                    style={{
+                      padding: '14px',
+                      borderRadius: 14,
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 10,
+                          backgroundColor: '#F3E8FF',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#7C3AED',
+                        }}
+                      >
+                        <Shield size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                          Hasil Nordic Body Map (NBM)
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                          {nbmAssessments.length} riwayat keluhan otot/sendi tubuh
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} color="#94A3B8" />
+                  </div>
+
+                  {/* Item 5 */}
+                  <div
+                    onClick={() => handleExportCategory('companies')}
+                    style={{
+                      padding: '14px',
+                      borderRadius: 14,
+                      border: '1px solid #E2E8F0',
+                      backgroundColor: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: 10,
+                          backgroundColor: '#FEF3C7',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#D97706',
+                        }}
+                      >
+                        <Building2 size={20} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0F172A' }}>
+                          Instansi & Unit Kerja
+                        </div>
+                        <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>
+                          {companies.length} instansi dan {departments.length} unit kerja
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} color="#94A3B8" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -3406,7 +3704,7 @@ export const AdminManagementScreen: React.FC<AdminManagementScreenProps> = ({
                 </div>
                 <div>
                   <h3 style={{ fontSize: 16, fontWeight: 800, color: '#0F172A', margin: 0 }}>
-                    {isEng ? 'Export Data to Excel (.xlsx)' : 'Export Data ke Excel (.xlsx)'}
+                    {isEng ? 'OHS Reports (.xlsx)' : 'Laporan Data K3 (.xlsx)'}
                   </h3>
                   <p style={{ fontSize: 11, color: '#64748B', margin: '2px 0 0 0' }}>
                     {isEng ? 'Select which data report you want to download' : 'Pilih format laporan spreadsheet yang ingin diunduh'}
